@@ -3,6 +3,6 @@ FROM resin/%%RESIN_MACHINE_NAME%%-debian
 RUN apt-get update && apt-get install -y curl wget build-essential
 COPY . /usr/src/app
 WORKDIR /usr/src/app
-RUN ./build.sh %%RESIN_MACHINE_NAME%% '2.12.5+rev1.prod' example_module
+RUN ./build.sh %%RESIN_MACHINE_NAME%% '2.12.5+rev2.prod' example_module
 
 CMD ./run.sh
