@@ -17,10 +17,10 @@ MODULE_AUTHOR("Adriano Marto Reis");
 MODULE_DESCRIPTION("Software-UART for Raspberry Pi");
 MODULE_VERSION("0.1");
 
-static int gpio_tx = 24;
+static int gpio_tx = 23;
 module_param(gpio_tx, int, 0);
 
-static int gpio_rx = 23;
+static int gpio_rx = 24;
 module_param(gpio_rx, int, 0);
 
 // Module prototypes.
@@ -72,13 +72,13 @@ static struct tty_port port;
 static int __init soft_uart_init(void)
 {
   printk(KERN_INFO "soft_uart: Initializing module...\n");
-
+  
   if (!raspberry_soft_uart_init(gpio_tx, gpio_rx))
   {
     printk(KERN_ALERT "soft_uart: Failed initialize GPIO.\n");
     return -ENOMEM;
   }
-
+    
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
   printk(KERN_INFO "soft_uart: LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0).\n");
 
@@ -119,9 +119,9 @@ static int __init soft_uart_init(void)
   soft_uart_driver->type                  = TTY_DRIVER_TYPE_SERIAL;
   soft_uart_driver->subtype               = SERIAL_TYPE_NORMAL;
   soft_uart_driver->init_termios          = tty_std_termios;
-  soft_uart_driver->init_termios.c_ispeed = 4800;
-  soft_uart_driver->init_termios.c_ospeed = 4800;
-  soft_uart_driver->init_termios.c_cflag  = B4800 | CREAD | CS8 | CLOCAL;
+  soft_uart_driver->init_termios.c_ispeed = 1200;
+  soft_uart_driver->init_termios.c_ospeed = 1200;
+  soft_uart_driver->init_termios.c_cflag  = B1200 | CREAD | CS8 | CLOCAL;
 
   // Sets the callbacks for the driver.
   tty_set_operations(soft_uart_driver, &soft_uart_operations);
@@ -149,13 +149,13 @@ static int __init soft_uart_init(void)
 static void __exit soft_uart_exit(void)
 {
   printk(KERN_INFO "soft_uart: Finalizing the module...\n");
-
+  
   // Finalizes the soft UART.
   if (!raspberry_soft_uart_finalize())
   {
     printk(KERN_ALERT "soft_uart: Something went wrong whilst finalizing the soft UART.\n");
   }
-
+  
   // Unregisters the driver.
   if (tty_unregister_driver(soft_uart_driver))
   {
@@ -175,7 +175,7 @@ static void __exit soft_uart_exit(void)
 static int soft_uart_open(struct tty_struct* tty, struct file* file)
 {
   int error = NONE;
-
+    
   if (raspberry_soft_uart_open(tty))
   {
     printk(KERN_INFO "soft_uart: Device opened.\n");
@@ -185,7 +185,7 @@ static int soft_uart_open(struct tty_struct* tty, struct file* file)
     printk(KERN_ALERT "soft_uart: Device busy.\n");
     error = -ENODEV;
   }
-
+  
   return error;
 }
 
@@ -204,7 +204,7 @@ static void soft_uart_close(struct tty_struct* tty, struct file* file)
     msleep(100);
     wait_time += 100;
   }
-
+  
   if (raspberry_soft_uart_close())
   {
     printk(KERN_INFO "soft_uart: Device closed.\n");
@@ -278,19 +278,19 @@ static void soft_uart_set_termios(struct tty_struct* tty, struct ktermios* termi
   {
     printk(KERN_ALERT "soft_uart: Invalid number of data bits.\n");
   }
-
+  
   // Verifies the number of stop bits (it must be 1).
   if (cflag & CSTOPB)
   {
     printk(KERN_ALERT "soft_uart: Invalid number of stop bits.\n");
   }
-
+  
   // Verifies the parity (it must be none).
   if (cflag & PARENB)
   {
     printk(KERN_ALERT "soft_uart: Invalid parity.\n");
   }
-
+  
   // Configure the baudrate.
   if (!raspberry_soft_uart_set_baudrate(baudrate))
   {
@@ -360,11 +360,11 @@ static int soft_uart_ioctl(struct tty_struct* tty, unsigned int command, unsigne
     case TIOCMSET:
       error = NONE;
       break;
-
+ 
     case TIOCMGET:
       error = NONE;
       break;
-
+      
       default:
         error = -ENOIOCTLCMD;
         break;
