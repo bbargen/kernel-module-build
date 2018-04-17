@@ -14,6 +14,7 @@ RUN pip install -r /requirements.txt
 
 COPY . /usr/src/app
 WORKDIR /usr/src/app
-RUN ./build.sh %%RESIN_MACHINE_NAME%% '2.12.5+rev2.prod' example_module
+# RUN ./build.sh %%RESIN_MACHINE_NAME%% '2.12.5+rev2.prod' example_module
+RUN ./build.sh %%RESIN_MACHINE_NAME%% '2.3.0+rev1.prod' example_module
 
 CMD ./run.sh
